@@ -26,7 +26,6 @@
 ```bash
 $ cd /var/www/html
 $ wget https://raw.githubusercontent.com/zakriabilal/wp-media-cleaner/main/wp-media-cleaner.sh
-$ chmod +x .wp-media-cleaner.sh
 $ chmod 744 ./wp-media-cleaner.sh
 $ sudo -u www-data ./wp-media-cleaner.sh
 ```
