@@ -25,6 +25,8 @@ function exit_program {
 CURRENT_DIR=$(pwd)
 # Set Variable to uploads directory
 UPLOADS_DIR=$(wp eval 'echo wp_upload_dir()["basedir"];')
+# Batch size for deleting attachments
+BATCH_SIZE=20
 
 # Ask the user if they want to continue.
 echo ""
@@ -68,6 +70,17 @@ while [[ ! $START_DATE =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; do
     read -p "Please enter a valid date (YYYY-MM-DD) " START_DATE
 done
 
+# Ask the user if they want to update the batch count which defaults to 20
+echo ""
+read -p "Do you want to update the batch count (Number of files deleted at one time)? (y/n) " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo ""
+    read -p "Enter the number of attachments to delete at a time (default is 20)" BATCH_SIZE
+    while ! [[ "$BATCH_SIZE" =~ ^[0-9]+$ ]]; do
+        echo ""
+        read -p "Please enter a valid number " BATCH_SIZE
+    done
+fi
 
 # Identify the wordpress database prefix
 WP_PREFIX=$(wp db prefix)
@@ -130,17 +143,17 @@ echo "Deleting attachments..."
 echo ""
 
 # Loop through all attachments to be deleted and delete them in batches of w0.
-for (( i=0; i<$TO_BE_DELETED_ATTACHMENTS_COUNT; i+=20 )); do
-    # Get the next 20 attachments to be deleted.
-    TO_BE_DELETED_ATTACHMENTS_BATCH=$(echo ${TO_BE_DELETED_ATTACHMENTS_ARRAY[@]:$i:20})
+for (( i=0; i<$TO_BE_DELETED_ATTACHMENTS_COUNT; i+=$BATCH_SIZE )); do
+    # Get the next attachments to be deleted.
+    TO_BE_DELETED_ATTACHMENTS_BATCH=$(echo ${TO_BE_DELETED_ATTACHMENTS_ARRAY[@]:$i:$BATCH_SIZE}) 
     # Delete the attachments.
     wp post delete --force $TO_BE_DELETED_ATTACHMENTS_BATCH
- 
+  
     # Echo the progress to the user.
     TO_BE_DELETED_ATTACHMENTS_BATCH_ARRAY=($TO_BE_DELETED_ATTACHMENTS_BATCH)
     TO_BE_DELETED_ATTACHMENTS_BATCH_COUNT=${#TO_BE_DELETED_ATTACHMENTS_BATCH_ARRAY[@]}
     echo ""
-    echo "Deleted $TO_BE_DELETED_ATTACHMENTS_BATCH_COUNT attachments. Progress: $((i + TO_BE_DELETED_ATTACHMENTS_BATCH_COUNT)) / $TO_BE_DELETED_ATTACHMENTS_COUNT"
+    echo "Progress: $((i + TO_BE_DELETED_ATTACHMENTS_BATCH_COUNT)) / $TO_BE_DELETED_ATTACHMENTS_COUNT attachments deleted."
     echo ""
 done 
 
@@ -160,5 +173,14 @@ echo "Finished - Deleted empty directories."
 echo ""
 
 echo ""
-echo "Make sure to remove this tool once the used."
+echo "It is best to remove this script once used."
 echo ""
+
+# Ask the user if they want to delete this script.
+read -p "Do you want to delete this script? (y/n) " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    rm $CURRENT_DIR/wp-media-cleaner.sh
+    echo ""
+    echo "Script deleted. - Goodbye!"
+    echo ""
+fi
