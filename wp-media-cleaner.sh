@@ -98,6 +98,20 @@ echo ""
 echo "Searching database for attachments..."
 echo ""
 
+# Ask the user if they want to delete posts/pages in the trash.
+echo ""
+read -p "Do you want to delete posts/pages in the trash? (y/n) " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "Deleting posts/pages in the trash..."
+    echo ""
+    wp post delete $(wp post list --post_type='post' --post_status='trash' --format=ids) --force
+    wp post delete $(wp post list --post_type='page' --post_status='trash' --format=ids) --force
+    echo ""
+    echo "Deleted posts/pages in the trash."
+    echo ""
+fi
+ 
 # Get all attachments that are thumbnails and satify the begin date if specificed.
 if [[ $START_DATE == "" ]]; then
     ALL_ATTACHMENTS=$(wp db query "SELECT ID FROM ${WP_PREFIX}posts WHERE post_type = 'attachment'" | awk '/^[0-9]+$/ {printf "%s ", $1}')
@@ -157,10 +171,6 @@ for (( i=0; i<$TO_BE_DELETED_ATTACHMENTS_COUNT; i+=$BATCH_SIZE )); do
     echo ""
 done 
 
-echo ""
-echo "Finished - Deleted $TO_BE_DELETED_ATTACHMENTS_COUNT attachments."
-echo ""
-
 # Delete all empty directories in the uploads directory.
 echo ""
 echo "Deleting empty directories..."
@@ -169,7 +179,7 @@ echo ""
 find $UPLOADS_DIR -type d -empty -delete
 
 echo ""
-echo "Finished - Deleted empty directories."
+echo "Deleted empty directories."
 echo ""
 
 echo ""
