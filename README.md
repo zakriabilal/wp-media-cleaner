@@ -27,5 +27,14 @@
 $ cd /var/www/html
 $ wget https://raw.githubusercontent.com/zakriabilal/wp-media-cleaner/main/wp-media-cleaner.sh
 $ chmod 744 ./wp-media-cleaner.sh
-$ sudo -u www-data ./wp-media-cleaner.sh
+$ ./wp-media-cleaner.sh
+```
+
+### If the server user is www-data you can run the following in the website directory
+
+```bash
+$ sudo wget https://raw.githubusercontent.com/zakriabilal/wp-media-cleaner/main/wp-media-cleaner.sh && \
+sudo chown www-data:www-data wp-media-cleaner.sh && \
+sudo chmod 744 wp-media-cleaner.sh && \
+sudo -u www-data ./wp-media-cleaner.sh
 ```
