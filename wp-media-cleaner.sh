@@ -75,7 +75,7 @@ echo ""
 read -p "Do you want to update the batch count (Number of files deleted at one time)? (y/n) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo ""
-    read -p "Enter the number of attachments to delete at a time (default is 20)" BATCH_SIZE
+    read -p "Enter the number of attachments to delete at a time (default is 20) " BATCH_SIZE
     while ! [[ "$BATCH_SIZE" =~ ^[0-9]+$ ]]; do
         echo ""
         read -p "Please enter a valid number " BATCH_SIZE
